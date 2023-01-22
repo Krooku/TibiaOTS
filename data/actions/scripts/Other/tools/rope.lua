@@ -1,3 +1,8 @@
+local ropeSpots = {
+	384, 421
+}
+
+
 local holeId = {
 	294, 369, 370, 383, 392, 408, 409, 410, 427, 428, 429, 430, 462, 469, 470, 482,
 	484, 485, 489, 924, 1369, 3135, 3136, 4835, 4837, 7933, 7938, 8170, 8249, 8250,
@@ -11,7 +16,26 @@ function onUse(player, item, fromPosition, target, toPosition, isHotkey)
 		return false
 	end
 
+	if not tile:getGround() then
+		return false
+	end
+	
 	if table.contains(ropeSpots, tile:getGround():getId()) then
+		local thing = tile:getTopCreature()
+ 
+		if not thing then
+			thing = tile:getTopVisibleThing()
+		end
+		if thing:isCreature() then
+			return false
+		end
+		if thing:isItem() and thing:getType():isMovable() then
+			return false
+		end
+		local thing = tile:getTopCreature()
+		if not thing then
+			thing = tile:getTopVisibleThing()
+		end
 		if Tile(toPosition:moveUpstairs()):hasFlag(TILESTATE_PROTECTIONZONE) and player:isPzLocked() then
 			player:sendCancelMessage(RETURNVALUE_PLAYERISPZLOCKED)
 			return true
@@ -23,7 +47,7 @@ function onUse(player, item, fromPosition, target, toPosition, isHotkey)
 		tile = Tile(toPosition)
 		if tile then
 			local thing = tile:getTopVisibleThing()
-			if thing:isPlayer() then
+			if thing:isPlayer() or thing:isMonster() then
 				if Tile(toPosition:moveUpstairs()):hasFlag(TILESTATE_PROTECTIONZONE) and thing:isPzLocked() then
 					return false
 				end
